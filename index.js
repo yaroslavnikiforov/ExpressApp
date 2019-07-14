@@ -6,6 +6,8 @@ var bodyParser = require("body-parser");
 var _ = require("lodash");
 var JSONStream = require("JSONStream");
 
+var User = require("./db").User;
+
 var app = express();
 
 app.engine("hbs", engines.handlebars);
@@ -21,28 +23,8 @@ app.get("/favicon.ico", function(req, res) {
 });
 
 app.get("/", function(req, res) {
-  var users = [];
-
-  fs.readdir("users", function(err, files) {
-    files.forEach(function(file) {
-      fs.readFile(
-        path.join(__dirname, "users", file),
-        { encoding: "utf8" },
-        function(err, data) {
-          if (err) {
-            throw err;
-          }
-
-          var user = JSON.parse(data);
-
-          user.name.full = _.startCase(user.name.first + " " + user.name.last);
-          users.push(user);
-
-          if (users.length === files.length)
-            res.render("index", { users: users });
-        }
-      );
-    });
+  User.find({}, function(err, users) {
+    res.render("index", { users: users });
   });
 });
 

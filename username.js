@@ -2,6 +2,8 @@ var express = require("express");
 var fs = require("fs");
 var helpers = require("./helpers");
 
+var User = require("./db").User;
+
 var router = express.Router({
   mergeParams: true
 });
@@ -14,11 +16,12 @@ router.use(function(req, res, next) {
 
 router.get("/", function(req, res) {
   var username = req.params.username;
-  var user = helpers.getUser(username);
 
-  res.render("user", {
-    user: user,
-    address: user.location
+  User.findOne({ username: username }, function(err, user) {
+    res.render("user", {
+      user: user,
+      address: user.location
+    });
   });
 });
 
@@ -28,17 +31,16 @@ router.use(function(err, req, res, next) {
   res.status(500).send("Something broke!");
 });
 
-router.get("/edit", function(req, res) {
-  res.send("You want to edit " + req.params.username + "?");
-});
-
 router.put("/", function(req, res) {
   var username = req.params.username;
-  var user = helpers.getUser(username);
 
-  user.location = req.body;
-  helpers.saveUser(username, user);
-  res.end();
+  User.findOneAndUpdate(
+    { username: username },
+    { location: req.body },
+    function(err, user) {
+      res.end();
+    }
+  );
 });
 
 router.delete("/", function(req, res) {
