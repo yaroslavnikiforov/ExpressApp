@@ -4,7 +4,7 @@ var path = require("path");
 var engines = require("consolidate");
 var bodyParser = require("body-parser");
 var _ = require("lodash");
-var helpers = require("./helpers");
+var JSONStream = require("JSONStream");
 
 var app = express();
 
@@ -52,9 +52,23 @@ app.get("*.json", function(req, res) {
 
 app.get("/data/:username", function(req, res) {
   var username = req.params.username;
-  var user = helpers.getUser(username);
+  var readable = fs.createReadStream("./users/" + username + ".json");
 
-  res.json(user);
+  readable.pipe(res);
+});
+
+app.get("/users/by/:gender", function(req, res) {
+  var gender = req.params.gender;
+  var readable = fs.createReadStream("users.json");
+
+  readable
+    .pipe(
+      JSONStream.parse("*", function(user) {
+        if (user.gender === gender) return user.name;
+      })
+    )
+    .pipe(JSONStream.stringify("[\n  ", ",\n  ", "\n]\n"))
+    .pipe(res);
 });
 
 app.get("/error/:username", function(req, res) {
