@@ -15,7 +15,7 @@
     "body-parser": "^1.19.0",
     "consolidate": "^0.15.1",
     "express": "^4.17.1",
-    "handlebars": "^4.1.2",
+    "handlebars": "^4.7.7",
     "jade": "^1.11.0",
     "lodash": "^4.17.11",
     "mongodb": "^3.2.7",
